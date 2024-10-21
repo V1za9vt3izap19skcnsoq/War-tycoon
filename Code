@@ -1,1 +1,135 @@
+local ArrayField = loadstring(game:HttpGet("https://raw.githubusercontent.com/Hosvile/Refinement/main/MC%3AArrayfield%20Library"))()
+
+local Window = ArrayField:CreateWindow({
+    Name = "Rinns Hub",
+    LoadingTitle = "Rinns Hub",
+    LoadingSubtitle = "Code by Rinn Ui by Sirius Ui remake by Hosvile",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = RinnsHubConfigs,
+        FileName = "RinnsHub"
+    },
+    Discord = {
+        Enabled = true,
+        Invite = "Mt9F5nc8Tg",
+        RememberJoins = false
+    },
+    KeySystem = false,
+    KeySettings = {
+        Title = "ArrayField",
+        Subtitle = "Key System",
+        Note = "Join the discord (discord.gg/sirius)",
+        FileName = "ArrayFieldsKeys",
+        SaveKey = false,
+        GrabKeyFromSite = false,
+        Key = {"Hello",'Bye'},
+        Actions = {
+            [1] = {
+                Text = 'Click here to copy the key link',
+                OnPress = function()
+
+                end,
+            }
+        },
+    }
+})
+local Tab = Window:CreateTab("Tab Example", 4483362458)
+
+local AutoBuildTycoon = false
+local AutoUseOilMachine = false
+
+Tab:CreateToggle({
+    Name = "Auto Build Tycoon",
+    Info = {
+        Title = 'Slider template',
+        Image = '12735851647',
+        Description = 'Just a slider for stuff',
+    },
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        AutoBuildTycoon = Value
+    end,
+})
+
+Tab:CreateToggle({
+    Name = "Auto Use First Oil Machine",
+    Info = {
+        Title = 'Auto Use First Oil',
+        Image = '12735851647',
+        Description = 'Auto Uses The Firat Oil Machine That you habe to manually hold like ew who wants to do that',
+    },
+    CurrentValue = false,
+    Flag = "Toggle2",
+    Callback = function(Value)
+        AutoUseOilMachine = Value
+    end,
+})
+
+local player = game.Players.LocalPlayer
+local leaderstats = player:WaitForChild("leaderstats")
+local cash = leaderstats:WaitForChild("Cash")
+local teamName = player.Team.Name
+local tycoon = workspace.Tycoon.Tycoons:FindFirstChild(teamName)
+
+if not tycoon then return end
+
+local buttonsFolder = tycoon:WaitForChild("UnpurchasedButtons")
+local cashCollector = tycoon.Essentials:WaitForChild("CashCollector")
+
+local function teleportTo(part)
+    if part then
+        player.Character:MoveTo(part.Position)
+    end
+end
+
+local function findAffordableButton()
+    for _, button in pairs(buttonsFolder:GetChildren()) do
+        if button:IsA("Model") and button:FindFirstChild("Price") then
+            local price = button.Price
+            if price.Value > 0 and price.Value <= cash.Value then
+                return button:FindFirstChild("PrimaryPart") or button:FindFirstChildWhichIsA("BasePart")
+            end
+        end
+    end
+    return nil
+end
+
+spawn(function()
+    while true do
+        if AutoBuildTycoon then
+            local buttonPart = findAffordableButton()
+            if buttonPart then
+                teleportTo(buttonPart)
+            else
+                teleportTo(cashCollector)
+            end
+        end
+        wait(0.2)
+    end
+end)
+
+spawn(function()
+    while true do
+        if AutoUseOilMachine then
+            local oil1 = tycoon:FindFirstChild("PurchasedObjects"):FindFirstChild("Oil 1")
+            local cb1 = oil1 and oil1:FindFirstChild("CB1")
+            local prompt = cb1 and cb1:FindFirstChildOfClass("ProximityPrompt")
+            if prompt then
+                prompt.MaxActivationDistance = 99999999999999999899999999999
+                prompt:InputHoldBegin()
+                wait(prompt.HoldDuration)
+                prompt:InputHoldEnd()
+            end
+        else
+            local oil1 = tycoon:FindFirstChild("PurchasedObjects"):FindFirstChild("Oil 1")
+            local cb1 = oil1 and oil1:FindFirstChild("CB1")
+            local prompt = cb1 and cb1:FindFirstChildOfClass("ProximityPrompt")
+            if prompt then
+                prompt.MaxActivationDistance = 25
+            end
+        end
+        wait(1)
+    end
+end)
 
